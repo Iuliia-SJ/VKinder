@@ -1,0 +1,3 @@
+comunity_token = 'vk1.a.0Rh4mO2uXMlHCkqm6zc6hxrr__wmfDrcVY1aKtQzDEoN7JzHH2ENtLiFYmYooGtuW9NoKUzr7U-o5JO5KLj-88ufNhkGfGtTZw'
+acces_token = 'JVYIEFl97JrpPayQJzcnk1Z7F1CT0f1ODqUpmaxNFcftj_A3yJd1c8dbScc-f7tiLxj5zoupWSN4gug75QRuVE'
+db_url_object = "postgresql+psycopg2://postgres:postgres@localhost:5432/VKinders"
