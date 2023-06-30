@@ -1,11 +1,13 @@
-from charset_normalizer import from_bytes
+from sqlalchemy import create_engine
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
 
-from config import comunity_token, acces_token
+from config import comunity_token, acces_token, db_url_object
 from core import VkTools
-from data_store import check_user
+from data_store import add_user, check_user
+
+engine = create_engine(db_url_object)
 
 # отправка сообщений
 
@@ -33,10 +35,22 @@ class BotInterface():
     def event_handler(self):
         for event in self.longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                if event.text.lower() == 'привет':
+                
+                
+                if event.text.lower() == 'привет':    
                     self.params = self.vk_tools.get_profile_info(event.user_id)
                     self.message_send(
-                        event.user_id, f'Привет, {self.params["name"]}.')
+                        event.user_id, f'Привет, {self.params["name"]}!.\n\n'
+                        'Чтобы начать искать анкеты, введите комманду "поиск"\n' 
+                        'Чтобы завершить работу, введите комманду "завершить"')
+
+                    if  self.params['city'] is None:
+                         self.message_send(
+                        event.user_id, f'Введите название Вашего города')
+                    elif self.params['age'] is None:
+                       self.message_send(
+                        event.user_id, f' Введите Ваш возврат ')
+                         
                 elif event.text.lower() == 'поиск':
                   #   поиск анкет
                     self.message_send(
@@ -51,10 +65,16 @@ class BotInterface():
                         self.worksheets = self.vk_tools.search_worksheet(
                             self.params, self.offset)
 
-                        worksheet = self.worksheets.pop()
-                                                
-                        'проверка анкеты в бд '
-
+                        worksheet = self.worksheets.pop()                   
+                        # проверка анкеты в бд. Если анкет в списке больше нуля, 
+                        # то проверяем наличие выбранной анкеты в списке
+                        
+                        while check_user(engine, event.user_id, worksheet['id']):
+                           if len(self.worksheets) > 0:
+                              worksheet = self.worksheets.pop()
+                           else:
+                              break
+                           
                         photos = self.vk_tools.get_photos(worksheet['id'])
                         photo_string = ''
                         for photo in photos:
@@ -66,12 +86,16 @@ class BotInterface():
                         f'Имя: {worksheet["name"]} ссылка: vk.com/id{worksheet["id"]}',
                         attachment=photo_string
                     )
-
-                    'добавить в соотвествие с event.user_id'
-                           
-                elif event.text.lower() == 'пока':
+                    
+                    'добавление в бд '
+                    if check_user(engine, event.user_id, worksheet['id']) is False:
+                           add_user(engine, event.user_id, worksheet['id'])   
+                              
+                elif event.text.lower() == 'завершить':
                     self.message_send(
-                        event.user_id, 'До свидания')
+                        event.user_id, 'До свидания!\n\n'
+                        'Чтобы снова запустить бот, введите комманду "привет"')
+                    
                 else:
                     self.message_send(
                         event.user_id, 'Неизвестная команда')

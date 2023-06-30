@@ -9,7 +9,7 @@ from config import db_url_object
 
 metadata = MetaData()
 Base = declarative_base()
-
+engine = create_engine(db_url_object)
 #создаем таблицу 
 class Viewed(Base):
     __tablename__ = 'viewed'

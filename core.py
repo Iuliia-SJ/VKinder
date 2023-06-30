@@ -13,7 +13,7 @@ from config import acces_token
 class VkTools:
     def __init__(self, acces_token):
         self.vkapi = vk_api.VkApi(token=acces_token)
-
+        
     def _bdate_toyear(self, bdate):
         user_year = bdate.split('.')[2]
         now = datetime.now().year
@@ -27,6 +27,8 @@ class VkTools:
                                        'fields': 'city,sex,relation,bdate'
                                        }
                                       )
+            
+               
         except ApiError as e:
             info = {}
             print(f'error = {e}')
@@ -36,7 +38,8 @@ class VkTools:
                   'sex': info.get('sex'),
                   'city': info.get('city')['title'] if info.get('city') is not None else None,
                   'year': self._bdate_toyear(info.get('bdate'))
-                  }
+                  } 
+
         return result
      
       # поиск анкет
@@ -64,6 +67,7 @@ class VkTools:
 
         return result
      
+        
       # функция демонстрации фото
       
     def get_photos(self, id):
