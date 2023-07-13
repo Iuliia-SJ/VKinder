@@ -66,7 +66,16 @@ class VkTools:
                   ]
 
         return result
-     
+    
+    # функция поиска города из базы ВК
+    # def find_city(self, q: str):
+    #     city = self.vkapi.method('database.getCities',
+    #                                    {'country_id': 1,
+    #                                     'q': q,
+    #                                     'count': 1
+    #                                     })
+    #     city_id = city['items'][0]['id']
+    #     return city_id 
         
       # функция демонстрации фото
       
@@ -101,5 +110,5 @@ if __name__ == '__main__':
     worksheets = tools.search_worksheet(params, 20)
     worksheet = worksheets.pop()
     photos = tools.get_photos(worksheet['id'])
-
+    # my_hometown = tools.find_city('hometown')
     pprint(worksheets)

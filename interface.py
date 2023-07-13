@@ -36,23 +36,59 @@ class BotInterface():
         for event in self.longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
                 
-                
                 if event.text.lower() == 'привет':    
                     self.params = self.vk_tools.get_profile_info(event.user_id)
                     self.message_send(
-                        event.user_id, f'Привет, {self.params["name"]}!.\n\n'
+                        event.user_id, f'Привет, {self.params["name"]}!')
+                    if  self.params['city'] is None:  
+                        self.message_send(event.user_id, 
+                                          f'''Для начала работы бота, введите 
+                                          название Вашего города или укажите его
+                                          в своем профиле''')
+ 
+                        for event in self.longpoll.listen():
+                            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                                if event.text.isalpha() and len(event.text) > 1:
+                                    self.params['city'] = event.text.lower()
+                                    self.message_send(
+                                        event.user_id, 
+                                        f'Ваш город: {self.params["city"].capitalize()}\n' 
+                                        'Нажмите "старт" для запуска бота')
+                                else:
+                                     self.message_send(
+                                        event.user_id, 
+                                        f'''Такого города не существует! 
+                                        Введите название вашего города''')
+                                     continue
+                                break                        
+                                                    
+                    elif  self.params['year'] is None:  
+                        self.message_send(event.user_id, 
+                                          f'Укажите Ваш возраст(число)')    
+                        for event in self.longpoll.listen():
+                            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                                if event.text.isdigit() and int(event.text) > 17:
+                                    self.params['year'] = event.text
+                                    self.message_send(
+                                        event.user_id, 
+                                        f'Ваш возраст: {self.params["year"]}\n\n'
+                                        'Нажмите "старт" для запуска бота')
+                                else:
+                                     self.message_send(
+                                        event.user_id, 
+                                        f'Укажите число!')
+                                     continue
+                                break      
+
+                elif event.text.lower() == 'старт':
+                        self.message_send(
+                        event.user_id, f'Привет, {self.params["name"]}!\n\n'
                         'Чтобы начать искать анкеты, введите комманду "поиск"\n' 
                         'Чтобы завершить работу, введите комманду "завершить"')
-
-                    if  self.params['city'] is None:
-                         self.message_send(
-                        event.user_id, f'Введите название Вашего города')
-                    elif self.params['age'] is None:
-                       self.message_send(
-                        event.user_id, f' Введите Ваш возврат ')
-                         
+                
                 elif event.text.lower() == 'поиск':
                   #   поиск анкет
+                  
                     self.message_send(
                         event.user_id, 'Готово. Ищем дальше?')
                     if self.worksheets:
